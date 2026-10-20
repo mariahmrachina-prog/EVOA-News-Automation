@@ -68,3 +68,39 @@ Crie antes a pasta `data` (`mkdir -p data`). O horário usa o fuso do servidor; 
 Teste a coleta real separadamente com o comando normal. Dados de teste nunca são usados como substituição automática em produção. Para validar sem afetar o histórico principal, use `--database /tmp/evoa-validation.sqlite3 --output /tmp/evoa-validation`.
 
 Próximas evoluções: calibrar fontes e notas com a equipe editorial, melhorar agrupamento de notícias sobre o mesmo evento e integrar uma IA opcional para rascunhos, sempre sob revisão humana.
+
+## Evolução v2 — etapa inicial implementada
+
+A coleta da v1 continua disponível. Agora há configuração do caminho operacional por `EVOA_DATABASE` e comandos locais de backup, verificação e restauração sem sobrescrita:
+
+```bash
+.venv/bin/python -m evoa_news.storage backup --database data/history.sqlite3 --directory data/backups
+.venv/bin/python -m evoa_news.storage verify CAMINHO_DO_MANIFESTO
+.venv/bin/python -m evoa_news.storage restore CAMINHO_DO_MANIFESTO --destination data/restored.sqlite3
+```
+
+A restauração exige destino inexistente. `EVOA_BACKUP_DIR` configura o diretório padrão de backups. Não use pasta sincronizada como banco ativo. Bancos, backups e credenciais devem ficar fora do Git.
+
+Documentação:
+
+- [Manual editorial](docs/EDITORIAL_MANUAL.md): formato, curadoria, edição semanal e LinkedIn.
+- [Manual factual](docs/FACT_CHECKING_MANUAL.md): evidências, estados, limites e critérios para dependências.
+- [Armazenamento e Google](docs/STORAGE_AND_GOOGLE.md): operação manual, limites e contrato da integração futura.
+- [Plano editorial](docs/EDITORIAL_ROADMAP.md): arquitetura e avaliação de recomendações.
+
+**Estado ao fim da primeira etapa (atualização da etapa seguinte abaixo):** extração estruturada de fatos, redação por IA real, interface de curadoria, aprendizado e edição semanal continuam pendentes. O cliente OAuth e upload incremental Drive foram implementados na etapa seguinte, mas ainda não autenticados na conta. Os manuais especificam essas próximas etapas; não são funcionalidades executáveis. Nenhuma automação ou publicação foi ativada. Persistência externa só estará comprovada após cópia e restauração no destino escolhido.
+
+## Integração Google e piloto editorial
+
+A pasta oficial é `1in_94_e2fqQ878Xc3dG4vxq1BywnSSqM`, configurada em `config/google.json`. O cliente usa as APIs oficiais, descoberta de subpastas sem criação, upload imutável com aprovação explícita e journal de retomada. Dependências opcionais: `pip install -r requirements-google.txt`.
+
+Siga [os passos exatos de OAuth no Windows](docs/GOOGLE_WINDOWS.md). Ainda não houve autenticação ou operação real na conta; testes Google são simulados. Sheets possui plano local, CSV e adaptador de leitura; criação e sincronização bidirecional aguardam implementação/aprovação.
+
+Piloto local sem custo de API:
+
+```bash
+.venv/bin/python -m evoa_news.drafting --output output/piloto --validate-links
+.venv/bin/python -m evoa_news.sheets
+```
+
+A fila mantém todos os registros e não usa corte de pontuação. O padrão é extrativo **sem IA**, no idioma original, com limitações explícitas; não equivale a redação final em português. Ollama local é uma opção configurável ainda não validada com modelo real. Eventos de feedback já podem ser registrados pela API Python, mas ranking personalizado e aprendizado de escrita ainda não foram implementados.

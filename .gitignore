@@ -3,3 +3,16 @@ __pycache__/
 *.pyc
 data/
 output/
+
+# Bancos operacionais, backups e credenciais locais
+*.sqlite3
+*.sqlite3-*
+*.sqlite3.json
+*.db
+*.db-*
+.env
+credentials/
+
+# OAuth Google: nunca versionar tokens/configuração privada
+token.json
+client_secret*.json

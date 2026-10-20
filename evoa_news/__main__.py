@@ -3,12 +3,13 @@ import json
 from pathlib import Path
 
 from .collector import load_sources, run
+from .storage import database_path
 
 
 def main():
     parser = argparse.ArgumentParser(description="Coletor RSS EVOA News; não publica conteúdo")
     parser.add_argument("--sources", type=Path, default=Path("config/sources.json"))
-    parser.add_argument("--database", type=Path, default=Path("data/history.sqlite3"))
+    parser.add_argument("--database", type=Path, default=database_path())
     parser.add_argument("--output", type=Path, default=Path("output"))
     parser.add_argument("--max-age-hours", type=float, default=24)
     parser.add_argument("--top", type=int, default=20)
